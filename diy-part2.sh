@@ -20,5 +20,15 @@ sed -i 's/192.168.\$((addr_offset++))/10.0.\$((addr_offset++))/g' package/base-f
 # 512布局
 sed -i 's/reg = <0x600000 0x6e00000>/reg = <0x600000 0x1ea00000>/' target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000.dts
 
+# 删除软件
+rm -rf feeds/luci/applications/luci-app-openclash
+rm -rf feeds/luci/applications/luci-app-vlmcsd
+rm -rf feeds/luci/applications/luci-app-vsftpd
+rm -rf feeds/luci/applications/luci-app-accesscontrol
+rm -rf feeds/luci/applications/luci-app-nlbwmon
+rm -rf feeds/luci/applications/luci-app-wol
+rm -rf feeds/luci/applications/luci-app-ddns
+rm -rf package/lean/ddns-scripts_aliyun
+rm -rf package/lean/ddns-scripts_dnspod
 
 echo "CONFIG_PACKAGE_luci-theme-argon=y" >> .config
