@@ -20,17 +20,5 @@ sed -i 's/192.168.\$((addr_offset++))/10.0.\$((addr_offset++))/g' package/base-f
 # 512布局
 sed -i 's/reg = <0x600000 0x6e00000>/reg = <0x600000 0x1ea00000>/' target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000.dts
 
-# --- 取消集成指定的 LuCI 插件 ---
-items=(
-    "luci-app-accesscontrol"
-    "luci-app-ddns"
-    "luci-app-vlmcsd"
-    "luci-app-vsftpd"
-    "luci-app-wol"
-)
-for item in "${items[@]}"; do
-    # 将 CONFIG_PACKAGE_luci-app-xxx=y 替换为未设置状态
-    sed -i "s/CONFIG_PACKAGE_$item=y/# CONFIG_PACKAGE_$item is not set/g" .config
-done
 
-echo "CONFIG_PACKAGE_luci-theme-design=y" >> .config
+echo "CONFIG_PACKAGE_luci-theme-argon=y" >> .config
