@@ -17,8 +17,9 @@ env:
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   UPLOAD_FIRMWARE: true
-  UPLOAD_RELEASE: true  # 新增：控制是否发布 Release
+  UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
+  TARGET: mt7986
 
 jobs:
   build:
@@ -26,7 +27,7 @@ jobs:
 
     steps:
     - name: 检查项目分支
-      uses: actions/checkout@main
+      uses: actions/checkout@v4
 
     - name: 初始化编译环境
       env:
@@ -59,6 +60,45 @@ jobs:
     - name: 更新 & 安装 Feeds
       run: cd openwrt && ./scripts/feeds update -a && ./scripts/feeds install -a
 
+    # ===== 缓存开始 =====
+
+    - name: 缓存 dl
+      uses: actions/cache@v4
+      with:
+        path: openwrt/dl
+        key: ${{ runner.os }}-dl
+
+    - name: 缓存 Toolchain
+      uses: actions/cache@v4
+      with:
+        path: |
+          openwrt/staging_dir/toolchain-*
+          openwrt/toolchain
+        key: ${{ runner.os }}-${{ env.TARGET }}-toolchain-v1
+
+    - name: 缓存 ccache
+      uses: actions/cache@v4
+      with:
+        path: ~/.ccache
+        key: ${{ runner.os }}-ccache-${{ env.TARGET }}
+
+    - name: 缓存编译目录
+      uses: actions/cache@v4
+      with:
+        path: |
+          openwrt/staging_dir
+          openwrt/build_dir
+        key: ${{ runner.os }}-build-${{ hashFiles('openwrt/.config') }}
+        restore-keys: |
+          ${{ runner.os }}-build-
+
+    - name: 设置 ccache
+      run: |
+        echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
+        echo "CCACHE_MAXSIZE=2G" >> $GITHUB_ENV
+
+    # ===== 缓存结束 =====
+
     - name: 加载自定义配置与脚本
       run: |
         [ -e files ] && mv files openwrt/files
@@ -72,12 +112,10 @@ jobs:
       if: (github.event.inputs.ssh_connection == 'true' && github.event.inputs.ssh_connection  != 'false') || contains(github.event.action, 'ssh')
 
     - name: 下载软件包
-      id: package
       run: |
         cd openwrt
         make defconfig
         make download -j8
-        find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
     - name: 编译固件
@@ -90,7 +128,11 @@ jobs:
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-      
+
+    - name: 清理空间（防止缓存爆炸）
+      run: |
+        rm -rf openwrt/build_dir/target-*
+
     - name: 整理输出文件
       id: organize
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
@@ -101,15 +143,14 @@ jobs:
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: 上传固件到 Artifacts
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v4
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
 
     - name: 固件发布
-      id: release
-      uses: ncipollo/release-action@main
+      uses: ncipollo/release-action@v1
       if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
         tag: v${{ env.FILE_DATE }}-redmi_ax6000
@@ -118,17 +159,14 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: 删除工作流程运行
-      uses: Mattraks/delete-workflow-runs@main
-      if: env.ORGANIZE_STATUS == 'success' && (!cancelled())
+      uses: Mattraks/delete-workflow-runs@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        repository: ${{ github.repository }}
         retain_days: 3
         keep_minimum_runs: 2
-        delete_workflow_pattern: "Redmi-AX6000-hanwckf"
 
     - name: 删除旧版本
-      uses: dev-drprasad/delete-older-releases@master
+      uses: dev-drprasad/delete-older-releases@v0.3.0
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         repo: ${{ github.repository }}
