@@ -44,7 +44,7 @@ rm -rf feeds/packages/lang/golang
 git clone --depth=1 https://github.com/F-57/luci-app-adguardhome package/luci-app-adguardhome
 git clone --depth=1 https://github.com/sbwml/luci-app-airconnect package/luci-app-airconnect
 git clone --depth=1 https://github.com/sirpdboy/luci-app-lucky package/luci-app-lucky
-git clone --depth=1 https://github.com/eamonxg/luci-theme-aurora package/luci-theme-aurora
+git clone --depth=1 https://github.com/derisamedia/luci-theme-alpha-reborn package/luci-theme-alpha-reborn
 git clone --depth=1 https://github.com/sbwml/packages_lang_golang -b 26.x feeds/packages/lang/golang
 git clone --depth=1 https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 git clone --depth=1 https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
@@ -70,7 +70,7 @@ change_name "feeds/luci/applications/luci-app-turboacc/po/zh_Hans/turboacc.po " 
 
 # 集成软件 预置编译选项 (写入 .config)
 cat >> .config <<EOF
-CONFIG_PACKAGE_luci-theme-aurora=y
+CONFIG_PACKAGE_luci-theme-alpha-reborn=y
 CONFIG_PACKAGE_luci-app-mosdns=y
 CONFIG_PACKAGE_luci-app-adguardhome=y
 CONFIG_PACKAGE_luci-app-lucky=y
