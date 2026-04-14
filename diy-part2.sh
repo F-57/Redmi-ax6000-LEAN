@@ -31,14 +31,46 @@ rm -rf feeds/luci/applications/luci-app-arpbind
 rm -rf package/lean/ddns-scripts_aliyun
 rm -rf package/lean/ddns-scripts_dnspod
 
-# 改菜单名字
-sed -i '/msgid "TurboACC"/{n;s/msgstr ".*"/msgstr "网络加速"/}' feeds/luci/applications/luci-app-turboacc/po/zh_Hans/turboacc.po
-
 # 下载软件包
-git clone https://github.com/sirpdboy/luci-app-wizard package/luci-app-wizard
 rm -rf feeds/luci/applications/luci-app-adguardhome
 git clone https://github.com/F-57/luci-app-adguardhome package/luci-app-adguardhome
+git clone https://github.com/sbwml/luci-app-openlist2 package/luci-app-openlist2
+git clone https://github.com/sbwml/luci-app-airconnect package/luci-app-airconnect
+git clone https://github.com/sirpdboy/luci-app-lucky package/luci-app-lucky
 
-# 集成软件
-echo "CONFIG_PACKAGE_luci-app-wizard=y" >> .config
-echo "CONFIG_PACKAGE_luci-app-adguardhome=y" >> .config
+# Golang 与 MosDNS (特殊处理)
+rm -rf feeds/packages/lang/golang
+git clone https://github.com/sbwml/packages_lang_golang -b 26.x feeds/packages/lang/golang
+rm -rf feeds/packages/net/v2ray-geodata feeds/packages/net/mosdns feeds/luci/applications/luci-app-mosdns
+git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
+git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
+
+# 更改菜单名字 定义一个快捷函数：参数1是文件路径，参数2是原始文字，参数3是目标文字
+change_name() {
+    local file=$1
+    local id=$2
+    local str=$3
+    if [ -f "$file" ]; then
+        # 匹配 msgid 后的下一行 msgstr 并进行替换
+        sed -i "/msgid \"$id\"/{n;s/msgstr \".*\"/msgstr \"$str\"/}" "$file"
+        echo "已修改 $id 为 $str"
+    else
+        echo "跳过：未找到文件 $file"
+    fi
+}
+
+change_name "package/mosdns/luci-app-mosdns/po/zh_Hans/mosdns.po" "MosDNS" "转发分流"
+change_name "feeds/luci/applications/luci-app-upnp/po/zh_Hans/upnp.po" "UPnP IGD & PCP" "端口转发"
+change_name "package/lucky/luci-app-lucky/po/zh_Hans/lucky.po" "Lucky" "大吉大利"
+change_name "package/openlist/luci-app-openlist2/po/zh_Hans/openlist2.po" "OpenList" "聚合网盘"
+change_name "feeds/luci/applications/luci-app-turboacc/po/zh_Hans/turboacc.po " "TurboACC" "网络加速"
+
+# 集成软件 预置编译选项 (写入 .config)
+cat >> .config <<EOF
+CONFIG_PACKAGE_luci-app-mosdns=y
+CONFIG_PACKAGE_luci-app-adguardhome=y
+CONFIG_PACKAGE_luci-app-lucky=y
+CONFIG_PACKAGE_luci-app-airconnect=y
+CONFIG_PACKAGE_luci-app-openlist2=y
+EOF
+
