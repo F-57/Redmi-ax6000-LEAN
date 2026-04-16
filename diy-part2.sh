@@ -65,8 +65,6 @@ change_name "feeds/luci/applications/luci-app-turboacc/po/zh_Hans/turboacc.po" "
 
 # 集成软件 预置编译选项 (写入 .config)
 cat >> .config <<EOF
-CONFIG_PACKAGE_luci-app-kucat-config=y
-CONFIG_PACKAGE_luci-theme-kucat=y
 CONFIG_PACKAGE_luci-app-mosdns=y
 CONFIG_PACKAGE_luci-app-adguardhome=y
 CONFIG_PACKAGE_luci-app-lucky=y
