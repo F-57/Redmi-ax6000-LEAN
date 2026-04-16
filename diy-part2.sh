@@ -27,8 +27,6 @@ sed -i "s/192\.168\.[0-9]*\.[0-9]*/10.0.0.1/g" feeds/luci/applications/luci-app-
 
 # 删除预制软件
 rm -rf feeds/luci/applications/luci-app-adguardhome
-rm -rf feeds/packages/net/lucky
-rm -rf feeds/luci/applications/luci-app-lucky
 
 # Git稀疏克隆，只克隆指定目录到本地
 function git_sparse_clone() {
@@ -41,8 +39,6 @@ function git_sparse_clone() {
 }
 
 # 下载软件包
-git_sparse_clone main https://github.com/sirpdboy/luci-app-lucky lucky
-git_sparse_clone main https://github.com/sirpdboy/luci-app-lucky luci-app-lucky
 git_sparse_clone main https://github.com/F-57/luci-app-adguardhome luci-app-adguardhome
 git_sparse_clone main https://github.com/sbwml/luci-app-airconnect airconnect
 git_sparse_clone main https://github.com/sbwml/luci-app-airconnect luci-app-airconnect
@@ -67,7 +63,7 @@ change_name "package/luci-app-kucat-config/po/zh_Hans/kucat-config.po" "KuCat Co
 change_name "feeds/luci/applications/luci-app-mosdns/po/zh_Hans/mosdns.po" "MosDNS" "转发分流"
 change_name "feeds/luci/applications/luci-app-nikki/po/zh_Hans/nikki.po" "Nikki" "科学上网"
 change_name "feeds/luci/applications/luci-app-upnp/po/zh_Hans/upnp.po" "UPnP" "端口转发"
-change_name "package/luci-app-lucky/po/zh_Hans/lucky.po" "Lucky" "大吉大利"
+change_name "feeds/luci/applications/luci-app-lucky/po/zh_Hans/lucky.po" "Lucky" "大吉大利"
 change_name "feeds/luci/applications/luci-app-turboacc/po/zh_Hans/turboacc.po" "TurboACC" "网络加速"
 
 # 更改 Argon 主题背景
