@@ -33,12 +33,24 @@ rm -rf feeds/packages/net/v2ray-geodata
 rm -rf feeds/packages/net/mosdns
 rm -rf feeds/packages/lang/golang
 
+# Git稀疏克隆，只克隆指定目录到本地
+function git_sparse_clone() {
+  branch="$1" repourl="$2" && shift 2
+  git clone --depth=1 -b $branch --single-branch --filter=blob:none --sparse $repourl
+  repodir=$(echo $repourl | awk -F '/' '{print $(NF)}')
+  cd $repodir && git sparse-checkout set $@
+  mv -f $@ ../package
+  cd .. && rm -rf $repodir
+}
+
+
 # 下载软件包
+git_sparse_clone main https://github.com/sirpdboy/luci-app-lucky lucky
+git_sparse_clone main https://github.com/sirpdboy/luci-app-lucky luci-app-lucky
 git clone --depth=1 https://github.com/sirpdboy/luci-theme-kucat package/luci-theme-kucat
 git clone --depth=1 https://github.com/sirpdboy/luci-app-kucat-config package/luci-app-kucat-config
 git clone --depth=1 https://github.com/F-57/luci-app-adguardhome package/adguardhome
 git clone --depth=1 https://github.com/sbwml/luci-app-airconnect package/luci-app-airconnect
-git clone --depth=1 https://github.com/sirpdboy/luci-app-lucky package/lucky
 git clone --depth=1 https://github.com/sbwml/packages_lang_golang -b 26.x feeds/packages/lang/golang
 git clone --depth=1 https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 git clone --depth=1 https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
@@ -60,7 +72,7 @@ change_name() {
 change_name "package/luci-app-kucat-config/po/zh_Hans/kucat-config.po" "KuCat Config" "主题设置"
 change_name "package/mosdns/luci-app-mosdns/po/zh_Hans/mosdns.po" "MosDNS" "转发分流"
 change_name "feeds/luci/applications/luci-app-upnp/po/zh_Hans/upnp.po" "UPnP" "端口转发"
-change_name "package/lucky/luci-app-lucky/po/zh_Hans/lucky.po" "Lucky" "大吉大利"
+change_name "package/luci-app-lucky/po/zh_Hans/lucky.po" "Lucky" "大吉大利"
 change_name "feeds/luci/applications/luci-app-turboacc/po/zh_Hans/turboacc.po" "TurboACC" "网络加速"
 
 # 集成软件 预置编译选项 (写入 .config)
@@ -69,5 +81,4 @@ CONFIG_PACKAGE_luci-app-mosdns=y
 CONFIG_PACKAGE_luci-app-adguardhome=y
 CONFIG_PACKAGE_luci-app-lucky=y
 CONFIG_PACKAGE_luci-app-airconnect=y
-CONFIG_PACKAGE_luci-app-ttyd=y
 EOF
