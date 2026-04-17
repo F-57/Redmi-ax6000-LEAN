@@ -28,6 +28,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: 初始化环境
       run: |
@@ -52,6 +54,22 @@ jobs:
       run: |
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /mnt/workdir/openwrt $GITHUB_WORKSPACE/openwrt
+
+    - name: Toolchain Cache
+      uses: klever1988/cachewrtbuild@main
+      with:
+        ccache: true
+        toolchain: true
+        skip: true
+        clean: false
+        
+    - name: Cache dl
+      uses: actions/cache@v4
+      with:
+        path: openwrt/dl
+        key: dl-${{ hashFiles('openwrt/feeds.conf.default') }}
+        restore-keys: |
+          dl-
 
     - name: 自定义 feeds & DIY_P1_SH
       run: |
@@ -78,6 +96,18 @@ jobs:
       uses: P3TERX/ssh2actions@v1.0.0
       if: github.event.inputs.ssh_connection == 'true'
 
+    - name: Setup ccache
+      run: |
+        export CCACHE_DIR=/github/home/.ccache
+        export CCACHE_BASEDIR=$GITHUB_WORKSPACE
+        export CCACHE_NOHASHDIR=true
+        export CCACHE_COMPRESS=true
+        export CCACHE_MAXSIZE=5G
+        echo "PATH=/usr/lib/ccache:$PATH" >> $GITHUB_ENV
+        echo "CC=ccache gcc" >> $GITHUB_ENV
+        echo "CXX=ccache g++" >> $GITHUB_ENV
+        ccache -z
+
     - name: 下载源码
       id: package
       run: |
@@ -93,6 +123,7 @@ jobs:
         cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
+        ccache -s
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*TARGET_.*_(.*)_DEVICE_.*=y/\1/' > TARGET_NAME
