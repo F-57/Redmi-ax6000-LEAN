@@ -54,23 +54,52 @@ jobs:
       run: |
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /mnt/workdir/openwrt $GITHUB_WORKSPACE/openwrt
+        # 在源码目录下计算特征哈希值，用于缓存 key
+        cd openwrt
+        echo "WRT_HASH=$(git log -1 --pretty=format:'%h' -- tools toolchain)" >> $GITHUB_ENV
 
-    - name: Toolchain & ccache 缓存
-      uses: klever1988/cachewrtbuild@main
+    - name: 缓存 Toolchain & Ccache
+      id: check-cache
+      uses: actions/cache@v4
       with:
-        ccache: true
-        toolchain: true
-        skip: false
-        clean: false
-        working-directory: openwrt
+        path: |
+          openwrt/.ccache
+          openwrt/staging_dir/host
+          openwrt/staging_dir/toolchain-*
+        key: ${{ runner.os }}-${{ env.TARGET }}-${{ env.WRT_HASH }}
+        restore-keys: |
+          ${{ runner.os }}-${{ env.TARGET }}-
+
+    - name: Update Caches
+      run: |
+        if [ -d "openwrt/staging_dir" ]; then
+          find "openwrt/staging_dir" -type d -name "stamp" -not -path "*target*" | while read -r DIR; do
+            find "$DIR" -type f -exec touch {} +
+          done
+          mkdir -p openwrt/tmp && echo "1" > openwrt/tmp/.build
+          echo "Toolchain timestamp updated!"
+        else
+          echo "Caches missed (no staging_dir found)!"
+        fi
+
+        if [ "${{ steps.check-cache.outputs.cache-hit }}" != 'true' ]; then
+          echo "Cache missed, cleaning up old versions..."
+          gh cache list --key "${{ runner.os }}-${{ env.TARGET }}-" | cut -f 1 | while read -r CACHE_KEY; do
+            gh cache delete "$CACHE_KEY" || true
+          done
+          echo "Caches cleanup done!"
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: 下载缓存 (dl)
       uses: actions/cache@v4
       with:
         path: openwrt/dl
-        key: dl-${{ hashFiles('openwrt/feeds.conf.default') }}
+        key: ${{ runner.os }}-dl-${{ env.TARGET }}-${{ hashFiles('openwrt/feeds.conf.default', 'diy-part*.sh') }}
         restore-keys: |
-          dl-
+          ${{ runner.os }}-dl-${{ env.TARGET }}-
+          ${{ runner.os }}-dl-
 
     - name: 自定义 feeds & DIY_P1_SH
       run: |
