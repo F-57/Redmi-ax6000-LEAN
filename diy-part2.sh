@@ -23,6 +23,25 @@ sed -i 's/reg = <0x600000 0x6e00000>/reg = <0x600000 0x1ea00000>/' $DTS_FILE
 # 修改内存定义为 1GB 
 sed -i 's/reg = <0 0x40000000 0 0x20000000>/reg = <0 0x40000000 0 0x40000000>/' $DTS_FILE
 
+# 开启 PPE (以太网加速引擎) 关联
+sed -i '/&eth {/a \	mediatek,offload-target = <&ppe>;' $DTS_FILE
+
+# 在文件末尾激活硬件加速模块节点
+cat >> $DTS_FILE <<EOF
+
+&ppe {
+	status = "okay";
+};
+
+&wed0 {
+	status = "okay";
+};
+
+&wed1 {
+	status = "okay";
+};
+EOF
+
 # 确保高并发参数写入系统配置
 sed -i '/customized system write here/a echo "net.netfilter.nf_conntrack_max=65535" >> /etc/sysctl.conf' package/base-files/files/etc/sysctl.conf
 
