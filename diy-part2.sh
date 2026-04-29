@@ -66,9 +66,9 @@ change_name() {
 change_name "feeds/luci/modules/luci-base/po/zh_Hans/base.po" "Processes" "系统进程"
 change_name "feeds/luci/applications/luci-app-upnp/po/zh_Hans/upnp.po" "UPnP IGD & PCP" "端口映射"
 change_name "feeds/luci/applications/luci-app-turboacc/po/zh_Hans/turboacc.po" "TurboACC" "网络加速"
-change_name "feeds/luci/applications/luci-app-mosdns/po/zh_Hans/mosdns.po" "MosDNS" "转发分流"
+change_name "feeds/luci/applications/luci-app-mosdns/po/zh_Hans/mosdns.po" "MosDNS" "分流助手"
 change_name "feeds/luci/applications/luci-app-nikki/po/zh_Hans/nikki.po" "Nikki" "科学上网"
-change_name "feeds/luci/applications/luci-app-lucky/po/zh_Hans/lucky.po" "Lucky" "大吉大利"
+change_name "feeds/luci/applications/luci-app-lucky/po/zh_Hans/lucky.po" "Lucky" "全能工具"
 
 
 # 更改 Argon 主题背景
