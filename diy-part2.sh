@@ -47,7 +47,7 @@ function git_sparse_clone() {
 }
 
 # 下载软件包
-git_sparse_clone main https://github.com/F-57/luci-app-adguardhome luci-app-adguardhome airconnect luci-app-airconnect luci-app-turboacc
+git_sparse_clone main https://github.com/F-57/luci-app luci-app-adguardhome airconnect luci-app-airconnect luci-app-turboacc
 
 mv package/luci-app-turboacc feeds/luci/applications/luci-app-turboacc
 rm -rf package/luci-app-turboacc
