@@ -32,8 +32,21 @@ sed -i 's/reg = <0 0x40000000 0 0x20000000>/reg = <0 0x40000000 0 0x40000000>/' 
 sed -i '$a net.netfilter.nf_conntrack_max=163840' package/base-files/files/etc/sysctl.conf
 sed -i '$a net.netfilter.nf_conntrack_buckets=40960' package/base-files/files/etc/sysctl.conf
 
-# TTYD 免登录
-sed -i 's|/bin/login|/bin/login -f root|g' feeds/packages/utils/ttyd/files/ttyd.config
+# 修改 zzz-default-settings 中的 UCI 批量配置
+LEAN_FILE="./package/lean/default-settings/files/zzz-default-settings"
+if [ -f "$LEAN_FILE" ]; then
+    # 1. 在 EOF 前精准插入新增的 set 配置
+    sed -i '/add_list system.ntp.server='\''time.apple.com'\''/a \
+\tset dhcp.lan.start='\''10'\''\n\tset dhcp.lan.limit='\''200'\''\n\tset dhcp.lan.dhcpv6='\''disabled'\''\n\tset dhcp.@dnsmasq[0].sequential_ip='\''1'\''\n\tset upnpd.config.enabled='\''1'\''\n\tset ttyd.@ttyd[0].command='\''/bin/login -f root'\''' "$LEAN_FILE"
+
+    # 2. 在 uci commit system 后精准追加对应的 commit 命令
+    sed -i '/uci commit system/a \
+uci commit dhcp\nuci commit upnpd\nuci commit ttyd' "$LEAN_FILE"
+
+    echo "zzz-default-settings: 批量配置替换成功"
+else
+    echo "跳过：未找到文件 $LEAN_FILE"
+fi
 
 # 修改upnp服务地址
 sed -i "s/192\.168\.[0-9]*\.[0-9]*/10.0.0.1/g" feeds/luci/applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js
