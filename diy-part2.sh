@@ -134,4 +134,5 @@ CONFIG_PACKAGE_luci-app-adguardhome=y
 CONFIG_PACKAGE_luci-app-lucky=y
 CONFIG_PACKAGE_luci-app-airconnect=y
 CONFIG_PACKAGE_luci-app-cloudflared=y
+CONFIG_PACKAGE_luci-app-upnp=y
 EOF
