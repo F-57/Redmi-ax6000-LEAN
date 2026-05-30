@@ -40,10 +40,21 @@ if [ -f "$LEAN_FILE" ]; then
     sed -i "s|\$1\$V4UetPzk\$CYXluq4wUazHjmCDBCqXF.|$NEW_PASSWORD_HASH|g" "$LEAN_FILE"
     echo "zzz-default-settings: 默认密码已成功修改为 cw010203"
 
-    # 2. 一路流式替换：精准截获 time.apple.com，并在其后重构 EOF 和所有 commit 命令
-    # 顶格匹配，防止因缩进导致 sed 失败
+# 2. 一路流式替换：精准截获 time.apple.com，并在其后重构 EOF 和所有 commit 命令
+    # 采用物理回车换行，彻底断绝 Actions 环境下 \n\t 字母转义失败的隐患
     sed -i "/system.ntp.server='time.apple.com'/c \
-\tadd_list system.ntp.server='time.apple.com'\n\tset dhcp.lan.start='10'\n\tset dhcp.lan.limit='200'\n\tset dhcp.lan.dhcpv6='disabled'\n\tset dhcp.@dnsmasq[0].sequential_ip='1'\n\tset upnpd.config.enabled='1'\n\tset ttyd.@ttyd[0].command='/bin/login -f root'\nEOF\nuci commit system\nuci commit dhcp\nuci commit upnpd\nuci commit ttyd" "$LEAN_FILE"
+	add_list system.ntp.server='time.apple.com'
+	set dhcp.lan.start='10'
+	set dhcp.lan.limit='200'
+	set dhcp.lan.dhcpv6='disabled'
+	set dhcp.@dnsmasq[0].sequential_ip='1'
+	set upnpd.config.enabled='1'
+	set ttyd.@ttyd[0].command='/bin/login -f root'
+EOF
+uci commit system
+uci commit dhcp
+uci commit upnpd
+uci commit ttyd" "$LEAN_FILE"
 
     echo "zzz-default-settings: UCI 批量配置与结构重组成功！"
 else
