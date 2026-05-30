@@ -32,20 +32,25 @@ sed -i 's/reg = <0 0x40000000 0 0x20000000>/reg = <0 0x40000000 0 0x40000000>/' 
 sed -i '$a net.netfilter.nf_conntrack_max=163840' package/base-files/files/etc/sysctl.conf
 sed -i '$a net.netfilter.nf_conntrack_buckets=40960' package/base-files/files/etc/sysctl.conf
 
-# 修改 zzz-default-settings 中的 UCI 批量配置
+# 定制 zzz-default-settings 默认配置（修改密码 + 追加 UCI 配置）
 LEAN_FILE="./package/lean/default-settings/files/zzz-default-settings"
 if [ -f "$LEAN_FILE" ]; then
-    # 1. 在 EOF 前精准插入新增的 set 配置
+    # 1. 修改固件默认登录密码为 cw010203
+    NEW_PASSWORD_HASH=$(openssl passwd -1 "cw010203")
+    sed -i "s|\$1\$V4UetPzk\$CYXluq4wUazHjmCDBCqXF.|$NEW_PASSWORD_HASH|g" "$LEAN_FILE"
+    echo "zzz-default-settings: 默认密码已成功修改为 cw010203"
+
+    # 2. 在 EOF 前精准插入新增的 set 配置
     sed -i '/add_list system.ntp.server='\''time.apple.com'\''/a \
 \tset dhcp.lan.start='\''10'\''\n\tset dhcp.lan.limit='\''200'\''\n\tset dhcp.lan.dhcpv6='\''disabled'\''\n\tset dhcp.@dnsmasq[0].sequential_ip='\''1'\''\n\tset upnpd.config.enabled='\''1'\''\n\tset ttyd.@ttyd[0].command='\''/bin/login -f root'\''' "$LEAN_FILE"
 
-    # 2. 在 uci commit system 后精准追加对应的 commit 命令
+    # 3. 在 uci commit system 后精准追加对应的 commit 命令
     sed -i '/uci commit system/a \
 uci commit dhcp\nuci commit upnpd\nuci commit ttyd' "$LEAN_FILE"
 
-    echo "zzz-default-settings: 批量配置替换成功"
+    echo "zzz-default-settings: UCI 批量配置流式注入成功"
 else
-    echo "跳过：未找到文件 $LEAN_FILE"
+    echo "错误：未找到默认配置文件 $LEAN_FILE，请检查源码目录结构！"
 fi
 
 # 修改upnp服务地址
