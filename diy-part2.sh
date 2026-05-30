@@ -19,15 +19,7 @@ sed -i 's/reg = <0 0x40000000 0 0x20000000>/reg = <0 0x40000000 0 0x40000000>/' 
 sed -i '$a net.netfilter.nf_conntrack_max=163840' package/base-files/files/etc/sysctl.conf
 sed -i '$a net.netfilter.nf_conntrack_buckets=40960' package/base-files/files/etc/sysctl.conf
 
-# 定制 zzz-default-settings 默认配置（修改密码 + 追加 UCI 配置）
-LEAN_FILE="./package/lean/default-settings/files/zzz-default-settings"
-if [ -f "$LEAN_FILE" ]; then
-    # 1. 修改固件默认登录密码为 cw010203
-    NEW_PASSWORD_HASH=$(openssl passwd -1 "cw010203")
-    sed -i "s|\$1\$V4UetPzk\$CYXluq4wUazHjmCDBCqXF.|$NEW_PASSWORD_HASH|g" "$LEAN_FILE"
-    echo "zzz-default-settings: 默认密码已成功修改为 cw010203"
-
-    # 2. 单行流式追加：精准在 time.apple.com 后面插入配置，并闭合重组所有 commit 命令
+# 定制 zzz-default-settings 默认配置（追加 UCI 配置）
     sed -i "/system.ntp.server='time.apple.com'/a \\
 \tset dhcp.lan.start='10'\\
 \tset dhcp.lan.limit='200'\\
