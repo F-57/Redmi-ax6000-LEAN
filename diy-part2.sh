@@ -40,15 +40,12 @@ if [ -f "$LEAN_FILE" ]; then
     sed -i "s|\$1\$V4UetPzk\$CYXluq4wUazHjmCDBCqXF.|$NEW_PASSWORD_HASH|g" "$LEAN_FILE"
     echo "zzz-default-settings: 默认密码已成功修改为 cw010203"
 
-    # 2. 在 EOF 前精准插入新增的 set 配置
-    sed -i '/add_list system.ntp.server='\''time.apple.com'\''/a \
-\tset dhcp.lan.start='\''10'\''\n\tset dhcp.lan.limit='\''200'\''\n\tset dhcp.lan.dhcpv6='\''disabled'\''\n\tset dhcp.@dnsmasq[0].sequential_ip='\''1'\''\n\tset upnpd.config.enabled='\''1'\''\n\tset ttyd.@ttyd[0].command='\''/bin/login -f root'\''' "$LEAN_FILE"
+    # 2. 一路流式替换：精准截获 time.apple.com，并在其后重构 EOF 和所有 commit 命令
+    # 顶格匹配，防止因缩进导致 sed 失败
+    sed -i "/system.ntp.server='time.apple.com'/c \
+\tadd_list system.ntp.server='time.apple.com'\n\tset dhcp.lan.start='10'\n\tset dhcp.lan.limit='200'\n\tset dhcp.lan.dhcpv6='disabled'\n\tset dhcp.@dnsmasq[0].sequential_ip='1'\n\tset upnpd.config.enabled='1'\n\tset ttyd.@ttyd[0].command='/bin/login -f root'\nEOF\nuci commit system\nuci commit dhcp\nuci commit upnpd\nuci commit ttyd" "$LEAN_FILE"
 
-    # 3. 在 uci commit system 后精准追加对应的 commit 命令
-    sed -i '/uci commit system/a \
-uci commit dhcp\nuci commit upnpd\nuci commit ttyd' "$LEAN_FILE"
-
-    echo "zzz-default-settings: UCI 批量配置流式注入成功"
+    echo "zzz-default-settings: UCI 批量配置与结构重组成功！"
 else
     echo "错误：未找到默认配置文件 $LEAN_FILE，请检查源码目录结构！"
 fi
