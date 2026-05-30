@@ -1,14 +1,4 @@
 #!/bin/bash
-#
-# Copyright (c) 2019-2023 P3TERX <https://p3terx.com>
-#
-# This is free software, licensed under the MIT License.
-# See /LICENSE for more information.
-#
-# https://github.com/P3TERX/Actions-OpenWrt
-# File name: diy-part2.sh
-# Description: OpenWrt DIY script part 2 (After Update feeds)
-#
 
 # IP 配置
 CFG_FILE="./package/base-files/files/bin/config_generate"
@@ -19,9 +9,6 @@ sed -i 's/192.168.\$((addr_offset++))/10.0.\$((addr_offset++))/g' $CFG_FILE
 WIFI_FILE="./package/kernel/mac80211/files/lib/wifi/mac80211.sh"
 sed -i 's/country="US"/country="CN"/g' $WIFI_FILE
 sed -i 's/ssid="LEDE"/ssid="Ax6000"/g' $WIFI_FILE
-
-# 默认密码
-#LEAN_FILE="./package/lean/default-settings/files/zzz-default-settings"
 
 # 修改分区为512MB 内存1GB
 DTS_FILE=$(find target/linux/mediatek/ -name "mt7986a-xiaomi-redmi-router-ax6000.dts")
@@ -40,25 +27,27 @@ if [ -f "$LEAN_FILE" ]; then
     sed -i "s|\$1\$V4UetPzk\$CYXluq4wUazHjmCDBCqXF.|$NEW_PASSWORD_HASH|g" "$LEAN_FILE"
     echo "zzz-default-settings: 默认密码已成功修改为 cw010203"
 
-# 2. 一路流式替换：精准截获 time.apple.com，并在其后重构 EOF 和所有 commit 命令
-    # 采用物理回车换行，彻底断绝 Actions 环境下 \n\t 字母转义失败的隐患
-    sed -i "/system.ntp.server='time.apple.com'/c \
-	add_list system.ntp.server='time.apple.com'
-	set dhcp.lan.start='10'
-	set dhcp.lan.limit='200'
-	set dhcp.lan.dhcpv6='disabled'
-	set dhcp.@dnsmasq[0].sequential_ip='1'
-	set upnpd.config.enabled='1'
-	set ttyd.@ttyd[0].command='/bin/login -f root'
-EOF
-uci commit system
-uci commit dhcp
-uci commit upnpd
+    # 2. 单行流式追加：精准在 time.apple.com 后面插入配置，并闭合重组所有 commit 命令
+    sed -i "/system.ntp.server='time.apple.com'/a \\
+\tset dhcp.lan.start='10'\\
+\tset dhcp.lan.limit='200'\\
+\tset dhcp.lan.dhcpv6='disabled'\\
+\tset dhcp.@dnsmasq[0].sequential_ip='1'\\
+\tset upnpd.config.enabled='1'\\
+\tset ttyd.@ttyd[0].command='/bin/login -f root'\\
+EOF\\
+uci commit system\\
+uci commit dhcp\\
+uci commit upnpd\\
 uci commit ttyd" "$LEAN_FILE"
+
+    # 3. 擦除原本多余的旧系统闭合行，防止结构重叠
+    sed -i "/^EOF$/d" "$LEAN_FILE"
+    sed -i "/uci commit system/d" "$LEAN_FILE"
 
     echo "zzz-default-settings: UCI 批量配置与结构重组成功！"
 else
-    echo "错误：未找到默认配置文件 $LEAN_FILE，请检查源码目录结构！"
+    echo "错误：未找到默认配置文件 $LEAN_FILE"
 fi
 
 # 修改upnp服务地址
