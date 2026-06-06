@@ -19,28 +19,8 @@ sed -i 's/reg = <0 0x40000000 0 0x20000000>/reg = <0 0x40000000 0 0x40000000>/' 
 sed -i '$a net.netfilter.nf_conntrack_max=163840' package/base-files/files/etc/sysctl.conf
 sed -i '$a net.netfilter.nf_conntrack_buckets=40960' package/base-files/files/etc/sysctl.conf
 
-# 定制 zzz-default-settings 默认配置（追加 UCI 配置）
-    sed -i "/system.ntp.server='time.apple.com'/a \\
-\tset dhcp.lan.start='10'\\
-\tset dhcp.lan.limit='200'\\
-\tset dhcp.lan.dhcpv6='disabled'\\
-\tset dhcp.@dnsmasq[0].sequential_ip='1'\\
-\tset upnpd.config.enabled='1'\\
-\tset ttyd.@ttyd[0].command='/bin/login -f root'\\
-EOF\\
-uci commit system\\
-uci commit dhcp\\
-uci commit upnpd\\
-uci commit ttyd" "$LEAN_FILE"
-
-    # 3. 擦除原本多余的旧系统闭合行，防止结构重叠
-    sed -i "/^EOF$/d" "$LEAN_FILE"
-    sed -i "/uci commit system/d" "$LEAN_FILE"
-
-    echo "zzz-default-settings: UCI 批量配置与结构重组成功！"
-else
-    echo "错误：未找到默认配置文件 $LEAN_FILE"
-fi
+# 精准替换 zzz-default-settings 里的 Lean 默认密码密文为 cw010203
+sed -i 's#$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.#$1$TQXSvUq6$k0SSeM5YDue70Ar04R6bf/#g' package/lean/default-settings/files/zzz-default-settings
 
 # 修改upnp服务地址
 sed -i "s/192\.168\.[0-9]*\.[0-9]*/10.0.0.1/g" feeds/luci/applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js
