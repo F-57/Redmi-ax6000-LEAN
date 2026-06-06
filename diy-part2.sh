@@ -25,7 +25,10 @@ sed -i '$a net.netfilter.nf_conntrack_buckets=40960' $SYSCTL_FILE
 
 # 精准替换 zzz-default-settings 里的 Lean 默认密码密文为 cw010203
 DEFAULT_SETTINGS="package/lean/default-settings/files/zzz-default-settings"
-sed -i 's#$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.#$1$TQXSvUq6$k0SSeM5YDue70Ar04R6bf/#g' $DEFAULT_SETTINGS
+if [ -f "$DEFAULT_SETTINGS" ]; then
+    # 绕过 $ 符号的转义陷阱，直接通过前缀特征，精准把 Lean 的默认密码替换为 cw010203
+    sed -i 's/V4UetPzk\$CYXluq4wUazHjmCDBCqXF./TQXSvUq6\$k0SSeM5YDue70Ar04R6bf\//g' $DEFAULT_SETTINGS
+fi
 
 # 删除 TurboACC 前端界面中的“高性能博通”选项
 TURBOACC_JS="feeds/luci/applications/luci-app-turboacc/htdocs/luci-static/resources/view/turboacc.js"
