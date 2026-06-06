@@ -48,6 +48,8 @@ function git_sparse_clone() {
 
 # 下载软件包
 git_sparse_clone main https://github.com/F-57/luci-app luci-app-adguardhome airconnect luci-app-airconnect
+git clone --depth 1 https://github.com/eamonxg/luci-theme-shadcn package/luci-theme-shadcn
+
 
 # 更改菜单名字 定义一个快捷函数：参数1是文件路径，参数2是原始文字，参数3是目标文字
 change_name() {
@@ -96,7 +98,6 @@ chmod +x ./files/etc/rc.local
 
 # 集成软件 预置编译选项 (写入 .config)
 cat >> .config <<EOF
-CONFIG_PACKAGE_luci-theme-design=y
 CONFIG_PACKAGE_luci-app-openclash=y
 CONFIG_PACKAGE_luci-app-mosdns=y
 CONFIG_PACKAGE_luci-app-adguardhome=y
