@@ -1,34 +1,35 @@
 #!/bin/bash
 
-# IP 配置
+# IP 网段及服务地址配置
 CFG_FILE="./package/base-files/files/bin/config_generate"
 sed -i 's/192.168.1.1/10.0.0.1/g' $CFG_FILE
 sed -i 's/192.168.\$((addr_offset++))/10.0.\$((addr_offset++))/g' $CFG_FILE
 
-# WIFI 配置
+UPNP_JS="feeds/luci/applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js"
+sed -i "s/192\.168\.[0-9]*\.[0-9]*/10.0.0.1/g" $UPNP_JS
+
+# 无线无线 WiFi 基础配置
 WIFI_FILE="./package/kernel/mac80211/files/lib/wifi/mac80211.sh"
 sed -i 's/country="US"/country="CN"/g' $WIFI_FILE
 sed -i 's/ssid="LEDE"/ssid="Ax6000"/g' $WIFI_FILE
 
-# 修改分区为512MB 内存1GB
+# 红米 AX6000 硬件设备树补丁 (512MB 闪存 / 1GB 内存)
 DTS_FILE=$(find target/linux/mediatek/ -name "mt7986a-xiaomi-redmi-router-ax6000.dts")
 sed -i 's/reg = <0x600000 0x6e00000>/reg = <0x600000 0x1ea00000>/' $DTS_FILE
 sed -i 's/reg = <0 0x40000000 0 0x20000000>/reg = <0 0x40000000 0 0x40000000>/' $DTS_FILE
 
-# 修正：直接向配置文件追加正确的 键=值 格式，并匹配 1GB 内存的性能
-sed -i '$a net.netfilter.nf_conntrack_max=163840' package/base-files/files/etc/sysctl.conf
-sed -i '$a net.netfilter.nf_conntrack_buckets=40960' package/base-files/files/etc/sysctl.conf
+# 内核网络内核参数追加
+SYSCTL_FILE="package/base-files/files/etc/sysctl.conf"
+sed -i '$a net.netfilter.nf_conntrack_max=163840' $SYSCTL_FILE
+sed -i '$a net.netfilter.nf_conntrack_buckets=40960' $SYSCTL_FILE
 
 # 精准替换 zzz-default-settings 里的 Lean 默认密码密文为 cw010203
-sed -i 's#$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.#$1$TQXSvUq6$k0SSeM5YDue70Ar04R6bf/#g' package/lean/default-settings/files/zzz-default-settings
-
-# 修改upnp服务地址
-sed -i "s/192\.168\.[0-9]*\.[0-9]*/10.0.0.1/g" feeds/luci/applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js
+DEFAULT_SETTINGS="package/lean/default-settings/files/zzz-default-settings"
+sed -i 's#$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.#$1$TQXSvUq6$k0SSeM5YDue70Ar04R6bf/#g' $DEFAULT_SETTINGS
 
 # 删除 TurboACC 前端界面中的“高性能博通”选项
 TURBOACC_JS="feeds/luci/applications/luci-app-turboacc/htdocs/luci-static/resources/view/turboacc.js"
 if [ -f "$TURBOACC_JS" ]; then
-    # 精准删除包含 'Boardcom Fullcone NAT1' 的行
     sed -i "/Boardcom Fullcone NAT1/d" "$TURBOACC_JS"
     echo "TurboACC: 已移除前端博通高性能选项"
 fi
@@ -49,7 +50,6 @@ function git_sparse_clone() {
 # 下载软件包
 git_sparse_clone main https://github.com/F-57/luci-app luci-app-adguardhome airconnect luci-app-airconnect
 git clone --depth 1 https://github.com/eamonxg/luci-theme-shadcn package/luci-theme-shadcn
-
 
 # 更改菜单名字 定义一个快捷函数：参数1是文件路径，参数2是原始文字，参数3是目标文字
 change_name() {
@@ -98,6 +98,7 @@ chmod +x ./files/etc/rc.local
 
 # 集成软件 预置编译选项 (写入 .config)
 cat >> .config <<EOF
+CONFIG_PACKAGE_luci-theme-shadcn=y
 CONFIG_PACKAGE_luci-app-openclash=y
 CONFIG_PACKAGE_luci-app-mosdns=y
 CONFIG_PACKAGE_luci-app-adguardhome=y
