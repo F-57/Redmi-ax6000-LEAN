@@ -24,10 +24,12 @@ sed -i '$a net.netfilter.nf_conntrack_max=163840' $SYSCTL_FILE
 sed -i '$a net.netfilter.nf_conntrack_buckets=40960' $SYSCTL_FILE
 
 # 精准替换 zzz-default-settings 里的 Lean 默认密码密文为 cw010203
-DEFAULT_SETTINGS="package/lean/default-settings/files/zzz-default-settings"
-if [ -f "$DEFAULT_SETTINGS" ]; then
-    # 绕过 $ 符号的转义陷阱，直接通过前缀特征，精准把 Lean 的默认密码替换为 cw010203
-    sed -i 's/V4UetPzk\$CYXluq4wUazHjmCDBCqXF./TQXSvUq6\$k0SSeM5YDue70Ar04R6bf\//g' $DEFAULT_SETTINGS
+cp -f $GITHUB_WORKSPACE/files/zzz-default-settings package/lean/default-settings/files/zzz-default-settings
+if [ $? -eq 0 ]; then
+    echo "成功：zzz-default-settings 替换成功。"
+else
+    echo "失败：zzz-default-settings 替换失败！"
+    exit 1
 fi
 
 # 删除 TurboACC 前端界面中的“高性能博通”选项
