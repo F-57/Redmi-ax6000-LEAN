@@ -24,7 +24,7 @@ sed -i '$a net.netfilter.nf_conntrack_max=163840' $SYSCTL_FILE
 sed -i '$a net.netfilter.nf_conntrack_buckets=40960' $SYSCTL_FILE
 
 # 精准替换 zzz-default-settings 里的 Lean 默认密码密文为 cw010203
-cp -f $GITHUB_WORKSPACE/files/zzz-default-settings package/lean/default-settings/files/zzz-default-settings
+cp -f $GITHUB_WORKSPACE/diy/zzz-default-settings package/lean/default-settings/files/zzz-default-settings
 if [ $? -eq 0 ]; then
     echo "成功：zzz-default-settings 替换成功。"
 else
