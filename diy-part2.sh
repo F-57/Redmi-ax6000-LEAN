@@ -39,11 +39,14 @@ if [ -f "$TURBOACC_JS" ]; then
     echo "TurboACC: 已移除前端博通高性能选项"
 fi
 
-# 删除信道扫描功能
+# 修复版：删除信道扫描功能 + 强行洗白系统文件权限
 rm -f feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/channel_analysis.js
 rm -f feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/svg/channel_analysis.svg
-cp -f $GITHUB_WORKSPACE/diy/luci/luci-mod-status.json feeds/luci/modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json
-cp -f $GITHUB_WORKSPACE/diy/rpcd/luci-mod-status.json feeds/luci/modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json
+cp -f "$GITHUB_WORKSPACE/diy/luci/luci-mod-status.json" feeds/luci/modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json
+cp -f "$GITHUB_WORKSPACE/diy/rpcd/luci-mod-status.json" feeds/luci/modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json
+chmod 644 feeds/luci/modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json
+chmod 644 feeds/luci/modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json
+rm -rf /tmp/luci-indexcache /tmp/luci-modulecache 2>/dev/null
 
 # 删除预制软件
 rm -rf feeds/luci/applications/luci-app-adguardhome
