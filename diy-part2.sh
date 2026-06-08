@@ -39,27 +39,6 @@ if [ -f "$TURBOACC_JS" ]; then
     echo "TurboACC: 已移除前端博通高性能选项"
 fi
 
-# 修复版：删除信道扫描功能 + 强行洗白系统文件权限
-echo "=== [INFO] 开始执行信道扫描功能清理流程 ==="
-if [ -f "$GITHUB_WORKSPACE/diy/luci/luci-mod-status.json" ]; then
-    cp -f "$GITHUB_WORKSPACE/diy/luci/luci-mod-status.json" feeds/luci/modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json && \
-      echo "成功：[前端路由 JSON] 完美覆盖到官方 feeds 目录。" || echo "失败：[前端路由 JSON] 覆盖过程中发生未知错误！"
-else
-    echo "错误：[$GITHUB_WORKSPACE/diy/luci/luci-mod-status.json] 本地文件不存在！请检查仓库路径！"
-fi
-if [ -f "$GITHUB_WORKSPACE/diy/rpcd/luci-mod-status.json" ]; then
-    cp -f "$GITHUB_WORKSPACE/diy/rpcd/luci-mod-status.json" feeds/luci/modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json && \
-      echo "成功：[后台权限 JSON] 完美覆盖到官方 rpcd 目录。" || echo "失败：[后台权限 JSON] 覆盖过程中发生未知错误！"
-else
-    echo "错误：[$GITHUB_WORKSPACE/diy/rpcd/luci-mod-status.json] 本地文件不存在！请检查仓库路径！"
-fi
-chmod 644 feeds/luci/modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json && \
-  echo "成功：[前端路由 JSON] 权限已强行修正为 644。" || echo "失败：[前端路由 JSON] 权限修正失败！"
-chmod 644 feeds/luci/modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json && \
-  echo "成功：[后台权限 JSON] 权限已强行修正为 644。" || echo "失败：[后台权限 JSON] 权限修正失败！"
-rm -rf /tmp/luci-indexcache /tmp/luci-modulecache 2>/dev/null && \
-  echo "成功：已强制清空 LuCI 路由常驻缓存。"
-
 # 删除预制软件
 rm -rf feeds/luci/applications/luci-app-adguardhome
 
