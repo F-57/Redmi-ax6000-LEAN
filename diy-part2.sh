@@ -41,7 +41,9 @@ fi
 
 # 删除信道扫描功能
 rm -f feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/channel_analysis.js
-sed -i '/"admin\/status\/channel_analysis": {/,/},/d' feeds/luci/modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json
+rm -f feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/svg/channel_analysis.svg
+cp -f $GITHUB_WORKSPACE/diy/luci/luci-mod-status.json feeds/luci/modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json
+cp -f $GITHUB_WORKSPACE/diy/rpcd/luci-mod-status.json feeds/luci/modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json
 
 # 删除预制软件
 rm -rf feeds/luci/applications/luci-app-adguardhome
