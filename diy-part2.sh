@@ -39,6 +39,10 @@ if [ -f "$TURBOACC_JS" ]; then
     echo "TurboACC: 已移除前端博通高性能选项"
 fi
 
+# 删除信道扫描功能
+find package/ feeds/ -name "channel_analysis.js" -exec rm -f {} \;
+find package/ feeds/ -name "*channel_analysis*.json" -exec rm -f {} \;
+
 # 删除预制软件
 rm -rf feeds/luci/applications/luci-app-adguardhome
 
