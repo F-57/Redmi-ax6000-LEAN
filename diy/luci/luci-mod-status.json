@@ -84,7 +84,7 @@
 		"title": "System Log",
 		"order": 4,
 		"action": {
-			"type": "alias",
+			"type": "alias"，
 			"path": "admin/status/logs/syslog"
 		},
 		"depends": {
@@ -119,19 +119,6 @@
 		},
 		"depends": {
 			"acl": [ "luci-mod-status-processes" ]
-		}
-	},
-
-	"admin/status/channel_analysis": {
-		"title": "Channel Analysis",
-		"order": 7,
-		"action": {
-			"type": "view",
-			"path": "status/channel_analysis"
-		},
-		"depends": {
-			"acl": [ "luci-mod-status-channel_analysis" ],
-			"uci": { "wireless": { "@wifi-device": true } }
 		}
 	},
 
