@@ -42,6 +42,32 @@ fi
 # 删除预制软件
 rm -rf feeds/luci/applications/luci-app-adguardhome
 
+# 终极反向洗白：用官方纯正 luci-mod-status 彻底强制覆盖本地所有包
+echo "=== [INFO] 开始执行官方 luci-mod-status 包反向强制覆盖 ==="
+rm -rf feeds/luci/modules/luci-mod-status
+rm -rf package/feeds/luci/luci-mod-status
+find . -type d -name "luci-mod-status" -exec rm -rf {} \; 2>/dev/null
+
+# 我们换用最稳妥的官方完整 feeds 库拉取法（直接现场去官方源抓取最干净的单包覆盖它）：
+rm -rf feeds/luci/modules/luci-mod-status
+git clone --depth=1 https://github.com/openwrt/luci /tmp/official888_luci
+if [ -d "/tmp/official_luci/modules/luci-mod-status" ]; then
+    cp -rf /tmp/official888_luci/modules/luci-mod-status feeds/luci/modules/
+    echo "成功：已成功从官方源抓取最纯正的 luci-mod-status 组件！"
+else
+    echo "错误：抓取官方源失败，请检查网络！"
+fi
+rm -rf /tmp/official888_luci
+
+# 3. 强行重置系统软链接，让 OpenWrt 的编译主引擎重新认识这个刚刚洗白回来的官方包
+./scripts/feeds install luci-mod-status
+
+# 4. 彻底擦除常驻缓存
+rm -rf /tmp/luci-indexcache /tmp/luci-modulecache 2>/dev/null
+echo "成功：已强制清空 LuCI 路由所有常驻缓存。"
+
+echo "=== [INFO] 官方包反向强制覆盖流程执行完毕 ==="
+
 # Git稀疏克隆，只克隆指定目录到本地
 function git_sparse_clone() {
   branch="$1" repourl="$2" && shift 2
