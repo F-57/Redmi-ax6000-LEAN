@@ -41,10 +41,6 @@ fi
 
 # 修复版：删除信道扫描功能 + 强行洗白系统文件权限
 echo "=== [INFO] 开始执行信道扫描功能清理流程 ==="
-rm -f feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/channel_analysis.js && \
-  echo "成功：已清理 channel_analysis.js 视图文件。" || echo "警告：未找到 channel_analysis.js，跳过。"
-rm -f feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/svg/channel_analysis.svg && \
-  echo "成功：已清理 channel_analysis.svg 矢量图文件。" || echo "警告：未找到 channel_analysis.svg，跳过。"
 if [ -f "$GITHUB_WORKSPACE/diy/luci/luci-mod-status.json" ]; then
     cp -f "$GITHUB_WORKSPACE/diy/luci/luci-mod-status.json" feeds/luci/modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json && \
       echo "成功：[前端路由 JSON] 完美覆盖到官方 feeds 目录。" || echo "失败：[前端路由 JSON] 覆盖过程中发生未知错误！"
