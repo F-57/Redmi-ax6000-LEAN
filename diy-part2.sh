@@ -32,6 +32,17 @@ else
     exit 1
 fi
 
+# 🎯 自动化替换 LuCI 原生信道分析前端文件
+PKG_JS_PATH="feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/channel_analysis.js"
+echo "📥 正在从 coolnowwolf 仓库拉取原生 channel_analysis.js..."
+curl -sSL "https://raw.githubusercontent.com/coolsnowwolf/luci/refs/heads/openwrt-23.05/modules/luci-mod-status/htdocs/luci-static/resources/view/status/channel_analysis.js" -o "$PKG_JS_PATH"
+if [ -f "$PKG_JS_PATH" ] && [ -s "$PKG_JS_PATH" ]; then
+    echo "🎉 原生信道分析文件下载并替换成功！"
+else
+    echo "❌ 错误：channel_analysis.js 下载失败或文件为空，请检查编译环境的网络！"
+    exit 1
+fi
+
 # 删除 TurboACC 前端界面中的“高性能博通”选项
 TURBOACC_JS="feeds/luci/applications/luci-app-turboacc/htdocs/luci-static/resources/view/turboacc.js"
 if [ -f "$TURBOACC_JS" ]; then
