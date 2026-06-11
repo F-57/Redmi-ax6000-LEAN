@@ -29,7 +29,6 @@ if [ $? -eq 0 ]; then
     echo "成功：zzz-default-settings 替换成功。"
 else
     echo "失败：zzz-default-settings 替换失败！"
-    exit 1
 fi
 
 # 自动化替换 LuCI 原生信道分析前端文件
@@ -38,7 +37,6 @@ if [ $? -eq 0 ]; then
     echo "成功：channel_analysis.js 替换成功。"
 else
     echo "失败：channel_analysis.js 替换失败！"
-    exit 1
 fi
 
 # 删除 TurboACC 前端界面中的“高性能博通”选项
