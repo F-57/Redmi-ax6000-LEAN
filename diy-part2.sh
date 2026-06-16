@@ -11,7 +11,7 @@ sed -i "s/192\.168\.[0-9]*\.[0-9]*/10.0.0.1/g" $UPNP_JS
 # 无线无线 WiFi 基础配置
 WIFI_FILE="./package/kernel/mac80211/files/lib/wifi/mac80211.sh"
 sed -i 's/country="US"/country="CN"/g' $WIFI_FILE
-sed -i 's/ssid="LEDE"/ssid="Ax6000"/g' $WIFI_FILE
+# sed -i 's/ssid="LEDE"/ssid="Ax6000"/g' $WIFI_FILE
 
 # 红米 AX6000 硬件设备树补丁 (512MB 闪存 / 1GB 内存)
 DTS_FILE=$(find target/linux/mediatek/ -name "mt7986a-xiaomi-redmi-router-ax6000.dts")
