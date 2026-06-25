@@ -63,6 +63,12 @@ function git_sparse_clone() {
 git_sparse_clone main https://github.com/F-57/luci-app luci-app-adguardhome airconnect luci-app-airconnect
 git clone --depth 1 https://github.com/eamonxg/luci-theme-shadcn package/luci-theme-shadcn
 
+# 安装最新版本OpenClash
+git clone --depth 1 https://github.com/vernesong/openclash.git OpenClash
+rm -rf feeds/luci/applications/luci-app-openclash
+mv OpenClash/luci-app-openclash feeds/luci/applications/luci-app-openclash
+rm -rf OpenClash
+
 # 更改菜单名字 定义一个快捷函数：参数1是文件路径，参数2是原始文字，参数3是目标文字
 change_name() {
     local file=$1
