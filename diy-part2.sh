@@ -24,7 +24,8 @@ sed -i '$a net.netfilter.nf_conntrack_max=163840' $SYSCTL_FILE
 sed -i '$a net.netfilter.nf_conntrack_buckets=40960' $SYSCTL_FILE
 
 # 精准替换 zzz-default-settings 里的 Lean 默认密码密文为 cw010203
-cp -f $GITHUB_WORKSPACE/diy/zzz-default-settings package/lean/default-settings/files/zzz-default-settings
+TARGET_DEFAULT_SETTINGS="package/lean/default-settings/files/zzz-default-settings"
+cp -f $GITHUB_WORKSPACE/diy/zzz-default-settings $TARGET_DEFAULT_SETTINGS
 if [ $? -eq 0 ]; then
     echo "成功：zzz-default-settings 替换成功。"
 else
@@ -32,7 +33,8 @@ else
 fi
 
 # 自动化替换 LuCI 原生信道分析前端文件
-cp -f $GITHUB_WORKSPACE/diy/channel_analysis.js feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/channel_analysis.js
+TARGET_CHANNEL_JS="feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/channel_analysis.js"
+cp -f $GITHUB_WORKSPACE/diy/channel_analysis.js $TARGET_CHANNEL_JS
 if [ $? -eq 0 ]; then
     echo "成功：channel_analysis.js 替换成功。"
 else
